@@ -84,30 +84,7 @@ namespace csConsoleApp
         }
 
         /// <summary>
-        /// Returns list of tuple int,int denoting the card value and it's frequency.
-        /// </summary>
-        public List<Tuple<int,int>> CountLikeValues(List<Card> hand)
-        {
-            List<Tuple<int, int>> countInfo = new();
-            //if there is for instance, 4 of a kind, return that information.
-            for (int i = 0; i < hand.Count; i++)
-            {
-                Card c = hand[i];
-                for (int j = 0; j < countInfo.Count; j++)
-                {
-                    if (countInfo[j].Item1 == c.IntegerValue)
-                    {
-                        countInfo[j] = new Tuple<int, int>(c.IntegerValue, countInfo[j].Item2 + 1);
-                    }
-                }
-                countInfo.Add(new Tuple<int, int>(c.IntegerValue, 1));
-            }
-
-            return countInfo;
-        }
-
-        /// <summary>
-        /// Returns list of tuple Card,int denoting the card value and it's frequency.
+        /// Returns list of List Card denoting the card value and it's frequency.
         /// </summary>
         public List<List<Card>> GetCardPairs(List<Card> hand)
         {
@@ -135,22 +112,6 @@ namespace csConsoleApp
             return cardPairs;
         }
 
-        /// <summary>
-        /// Can return a unique Card value Tuple, if no pairs exist in the hand.
-        /// </summary>
-        public Tuple<int, int> GetMaxLikeValue(List<Card> hand)
-        {
-            CheckArgSize(hand);
-            var l = CountLikeValues(hand);
-            int max = l.Max(x => x.Item2);
-            foreach (var tuple in l)
-            {
-                if (tuple.Item1 == max)
-                    return tuple;
-            }
-
-            return l[0];
-        }
         private List<Card> GetSortedCopy(List<Card> hand)
         {
             List<Card> local = new List<Card>(hand);

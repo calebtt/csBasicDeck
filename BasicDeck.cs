@@ -11,12 +11,17 @@ namespace csConsoleApp
     {
         private const int ShuffleRepeats = 20;
         private List<Card> flatCardArray;
-        private readonly Random rn = new(); // new C# language feature
+        private readonly Random rn = new(); // new C# language feature (new() without type)
         public BasicDeck()
         {
             BuildNewDeck();
         }
 
+        public List<Card> Cards
+        {
+            get {  return flatCardArray; }
+            //set;
+        }
         public BasicDeck(List<Card> hand)
         {
             flatCardArray = hand;

@@ -7,35 +7,36 @@ namespace csConsoleApp
 {
     internal class Program
     {
-        public static void Main(string[] args)
+        private static void InitialTesting(BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo)
         {
             Console.WriteLine("Some setup and testing...");
-            BasicDeck bd = new();
             Console.WriteLine("Num Cards: " + bd.Size());
             int sz = bd.Size();
             bd.Shuffle();
             for (int i = 0; i < sz; i++)
             {
-                Console.Write("[{0}] ",i);
+                Console.Write("[{0}] ", i);
                 Console.WriteLine(bd.RemoveFromTop());
             }
             //now we build a deck and assign 2 hands from it
             bd.BuildNewDeck();
             //a hand is it's own deck..
-            BasicDeck handOne = new (bd.CreateHandFromTop(5));
-            BasicDeck handTwo = new (bd.CreateHandFromTop(5));
-            //can copy the cards in the hand for operations.
-            List<Card> handOneCards = handOne.GetCopyOfCards();
-            List<Card> handTwoCards = handTwo.GetCopyOfCards();
-            Console.WriteLine();
-            Console.WriteLine("Sample draw for hand one has the cards:");
-            handOneCards.PrintToConsole();
-            Console.WriteLine();
-            Console.WriteLine("Sample draw for hand two has the cards:");
-            handTwoCards.PrintToConsole();
+            handOne = new(bd.CreateHandFromTop(5));
+            handTwo = new(bd.CreateHandFromTop(5));
+            Console.WriteLine("\nSample draw for hand one has the cards:");
+            handOne.Cards.PrintToConsole();
+            Console.WriteLine("\nSample draw for hand two has the cards:");
+            handTwo.Cards.PrintToConsole();
+        }
+        public static void Main(string[] args)
+        {
+            BasicDeck bd = new();
+            BasicDeck handOne;
+            BasicDeck handTwo;
+            InitialTesting(bd, out handOne, out handTwo);
+
             //now for some card game type logic
-            Console.WriteLine();
-            PrintWithColor("Beginning game of Five Card Flush. Flush of any kind wins the game instantly, most of a kind takes the round.");
+            PrintWithColor("\nBeginning game of Five Card Flush. Flush of any kind wins the game instantly, most of a kind takes the round.");
             PrintWithColor("10 rounds max, two of a kind takes that total value for scoring and so on. Total score wins if no flush encountered.");
             PokerFiveCard pk = new PokerFiveCard();
             int firstPlayerScore = 0;
@@ -43,29 +44,30 @@ namespace csConsoleApp
             for (int i = 0; i < 10; i++)
             {
                 //if there is a flush type detected, notify user and return
-                bool winOne = ComputeFlushAndPrint(pk, handOneCards, "one");
-                bool winTwo = ComputeFlushAndPrint(pk,handTwoCards, "two");
+                bool winOne = ComputeFlushAndPrint(pk, handOne.Cards, "one");
+                bool winTwo = ComputeFlushAndPrint(pk,handTwo.Cards, "two");
                 if (winOne || winTwo)
                 {
+                    PrintWithColor("\nFlush!", ConsoleColor.Red);
                     if (winOne && winTwo)
                     {
-                        Console.WriteLine("TIE! Player one and two tied.");
+                        PrintWithColor("TIE! Player one and two tied.");
                         return;
                     }
                     else if (winOne)
                     {
-                        Console.WriteLine("Winner! Player one.");
+                        PrintWithColor("Winner! Player one.");
                         return;
                     }
                     else
                     {
-                        Console.WriteLine("Winner! Player two.");
+                        PrintWithColor("Winner! Player two.");
                         return;
                     }
                 }
                 //count pairs
-                var handOnePairs = pk.GetCardPairs(handOneCards);
-                var handTwoPairs = pk.GetCardPairs(handTwoCards);
+                var handOnePairs = pk.GetCardPairs(handOne.Cards);
+                var handTwoPairs = pk.GetCardPairs(handTwo.Cards);
                 ComputeScoreAndPrint("one", handOnePairs, ref firstPlayerScore);
                 ComputeScoreAndPrint("two", handTwoPairs, ref secondPlayerScore);
                 //rebuild deck and shuffle before dealing again
@@ -73,23 +75,29 @@ namespace csConsoleApp
                 bd.Shuffle();
                 handOne = new(bd.CreateHandFromTop(5));
                 handTwo = new(bd.CreateHandFromTop(5));
-                handOneCards = handOne.GetCopyOfCards();
-                handTwoCards = handTwo.GetCopyOfCards();
+                List<Card> handOneCards = handOne.GetCopyOfCards();
+                List<Card> handTwoCards = handTwo.GetCopyOfCards();
             }
             //compare scores to see who won
             if (firstPlayerScore == secondPlayerScore)
             {
-                Console.WriteLine("TIED: duplicate score of {0}", firstPlayerScore);
+                StringBuilder sb = new();
+                sb.AppendFormat("TIED: duplicate score of {0}", firstPlayerScore);
+                PrintWithColor(sb.ToString(), ConsoleColor.DarkYellow);
                 return;
             }
             else if (firstPlayerScore > secondPlayerScore)
             {
-                Console.WriteLine("Winner! Player one. Score: {0}", firstPlayerScore);
+                StringBuilder sb = new();
+                sb.AppendFormat("Winner! Player one. Score: {0}", firstPlayerScore);
+                PrintWithColor(sb.ToString(), ConsoleColor.DarkYellow);
                 return;
             }
             else
             {
-                Console.WriteLine("Winner! Player two. Score: {0}", secondPlayerScore);
+                StringBuilder sb = new();
+                sb.AppendFormat("Winner! Player two. Score: {0}", secondPlayerScore);
+                PrintWithColor(sb.ToString(), ConsoleColor.DarkYellow);
                 return;
             }
         }
@@ -129,10 +137,10 @@ namespace csConsoleApp
             return false;
         }
 
-        public static void PrintWithColor(string message)
+        public static void PrintWithColor(string message, ConsoleColor c = ConsoleColor.Green)
         {
             ConsoleColor cur = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Green;
+            Console.ForegroundColor = c;
             Console.WriteLine(message);
             Console.ForegroundColor = cur;
         }
