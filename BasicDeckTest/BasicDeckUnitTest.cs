@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using csBasicDeck;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using csConsoleApp;
+
 namespace BasicDeckTest
 {
     [TestClass]

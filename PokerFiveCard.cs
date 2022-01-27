@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace csConsoleApp
+namespace csBasicDeck
 {
     /// <summary>
     /// Intended to operate on 5 card hands for the scoring of Poker,
