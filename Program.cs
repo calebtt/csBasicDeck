@@ -21,7 +21,7 @@ namespace csBasicDeck
             public const ConsoleColor TieColor = ConsoleColor.DarkCyan;
             public const ConsoleColor FlushColor = ConsoleColor.Red;
             public const ConsoleColor FlushTieColor = ConsoleColor.Magenta;
-            public const ConsoleColor WinColor = ConsoleColor.Yellow;
+            public const ConsoleColor WinColor = ConsoleColor.DarkYellow;
         }
         /// <summary> Stores some info about the win type.
         /// Such as is it a tie, or a flush or both or neither. </summary>
@@ -35,13 +35,15 @@ namespace csBasicDeck
                 RoyalFlush,
                 RegularFlush
             }
-            /// <summary> If two or more of the players have identical scores, returns true. </summary>
+            /// <summary> If two or more of the players have identical high scores, returns true. </summary>
             public bool IsTie
             {
                 get
                 {
-                    int d = PlayerScores.Distinct().Count();
-                    return (d != PlayerScores.Count);
+                    //find high score
+                    int maxScore = PlayerScores.Max();
+                    var maxScoreCount = PlayerScores.FindAll(sc => sc == maxScore);
+                    return (maxScoreCount.Count > 1);
                 }
             }
             /// <summary> If one or more of the players achieved a flush, returns true. </summary>
@@ -71,10 +73,7 @@ namespace csBasicDeck
         //
         public static void Main(string[] args)
         {
-            BasicDeck bd = new();
-            BasicDeck handOne;
-            BasicDeck handTwo;
-            InitialTesting(bd, out handOne, out handTwo);
+            InitialTesting(out BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo);
 
             while (true)
             {
@@ -123,8 +122,9 @@ namespace csBasicDeck
         /// <param name="bd">Existing deck of cards, will be replaced with a new deck after the test</param>
         /// <param name="handOne">Deck to store the hand cards in for player1</param>
         /// <param name="handTwo">Deck to store the hand cards in for player2</param>
-        private static void InitialTesting(BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo)
+        private static void InitialTesting(out BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo)
         {
+            bd = new();
             Console.WriteLine("Some setup and testing...");
             Console.WriteLine("Num Cards: " + bd.Size());
             int sz = bd.Size();
