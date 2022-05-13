@@ -73,7 +73,7 @@ namespace csBasicDeck
         //
         public static void Main(string[] args)
         {
-            InitialTesting(out BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo);
+            InitialTesting();
 
             while (true)
             {
@@ -87,8 +87,9 @@ namespace csBasicDeck
                 var exitKey = Console.ReadKey();
                 if (Char.ToUpper(exitKey.KeyChar) == 'Q')
                     return;
-                //now for some card game type logic
+                //now for some card game type logic, a loop of draws
                 WinInfo winnerInfo = RunRoundLoop();
+                //scoring info
                 int firstPlayerScore = winnerInfo.PlayerScores[0];
                 int secondPlayerScore = winnerInfo.PlayerScores[1];
                 if (winnerInfo.IsFlush)
@@ -113,8 +114,6 @@ namespace csBasicDeck
                 int winningScore = firstPlayerScore > secondPlayerScore ? firstPlayerScore : secondPlayerScore;
                 sb.AppendFormat("Winner! {0}. Score: {1}", winner, winningScore);
                 PrintWithColor(sb.ToString(), ProgSettings.WinColor);
-                //build a new deck of cards
-                bd.BuildNewDeck();
             }
         }
         /// <summary> Builds a new deck for each hand, printing the cards in the deck for inspection.
@@ -122,9 +121,11 @@ namespace csBasicDeck
         /// <param name="bd">Existing deck of cards, will be replaced with a new deck after the test</param>
         /// <param name="handOne">Deck to store the hand cards in for player1</param>
         /// <param name="handTwo">Deck to store the hand cards in for player2</param>
-        private static void InitialTesting(out BasicDeck bd, out BasicDeck handOne, out BasicDeck handTwo)
+        private static void InitialTesting()
         {
-            bd = new();
+            BasicDeck bd = new();
+            BasicDeck handOne;
+            BasicDeck handTwo;
             Console.WriteLine("Some setup and testing...");
             Console.WriteLine("Num Cards: " + bd.Size());
             int sz = bd.Size();
@@ -152,16 +153,17 @@ namespace csBasicDeck
         /// <returns></returns>
         private static WinInfo RunRoundLoop()
         {
-            BasicDeck bd = new();
-            BasicDeck handOne = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
-            BasicDeck handTwo = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
-
+            BasicDeck bd = new(); // deck management object, creation, shuffling, drawing, etc.
             int firstPlayerScore = 0;
             int secondPlayerScore = 0;
             PokerFiveCard pk = new PokerFiveCard(ProgSettings.NumCardsInHand); // game logic obj
             //ten round loop as of now
             for (int i = 0; i < ProgSettings.NumRoundsFiveCard; i++)
             {
+                //rebuild deck and shuffle before dealing
+                bd.BuildNewDeck();
+                BasicDeck handOne = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
+                BasicDeck handTwo = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
                 //if there is a flush type detected, notify user and return
                 WinInfo.FlushType flushWinOne = TestFlushes(pk, handOne.Cards);
                 WinInfo.FlushType flushWinTwo = TestFlushes(pk, handTwo.Cards);
@@ -175,11 +177,6 @@ namespace csBasicDeck
                 var handTwoPairs = pk.GetCardPairs(handTwo.Cards);
                 ComputeScoreAndPrint(ProgSettings.FirstPlayerName, handOnePairs, ref firstPlayerScore);
                 ComputeScoreAndPrint(ProgSettings.SecondPlayerName, handTwoPairs, ref secondPlayerScore);
-                //rebuild deck and shuffle before dealing again
-                bd.BuildNewDeck();
-                bd.Shuffle();
-                handOne = new(bd.CreateHandFromTop(5));
-                handTwo = new(bd.CreateHandFromTop(5));
             }
 
             return new WinInfo(new() {WinInfo.FlushType.None, WinInfo.FlushType.None},

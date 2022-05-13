@@ -11,16 +11,19 @@ namespace csBasicDeck
         private const int ShuffleRepeats = 20;
         private List<Card> flatCardArray;
         private readonly Random rn = new(); // new C# language feature (new() without type)
+        /// <summary> Property for accessing the card array.  </summary>
+        public List<Card> Cards
+        {
+            get { return flatCardArray; }
+        }
+
+        /// <summary> Constructor, builds a new deck of cards and shuffles it. </summary>
         public BasicDeck()
         {
             BuildNewDeck();
         }
-
-        public List<Card> Cards
-        {
-            get {  return flatCardArray; }
-            //set;
-        }
+        /// <summary> Constructor, creates a deck from an existing list of cards. </summary>
+        /// <param name="hand">list of cards</param>
         public BasicDeck(List<Card> hand)
         {
             flatCardArray = hand;
@@ -75,14 +78,15 @@ namespace csBasicDeck
         public void Shuffle()
         {
             const int minShuffle = 0;
+            Card tempCard;
             for (int j = 0; j < ShuffleRepeats; j++)
             {
                 for (int i = 0; i < flatCardArray.Count; i++)
                 {
                     int shuffle = rn.Next(minShuffle, flatCardArray.Count);
-                    Card c = new (flatCardArray.ElementAt(shuffle));
+                    tempCard = flatCardArray.ElementAt(shuffle);
                     flatCardArray.RemoveAt(shuffle);
-                    flatCardArray.Add(c);
+                    flatCardArray.Add(tempCard);
                 }
             }
         }
