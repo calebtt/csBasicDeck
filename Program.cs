@@ -74,8 +74,6 @@ namespace csBasicDeck
                 bd.Shuffle();
                 handOne = new(bd.CreateHandFromTop(5));
                 handTwo = new(bd.CreateHandFromTop(5));
-                List<Card> handOneCards = handOne.GetCopyOfCards();
-                List<Card> handTwoCards = handTwo.GetCopyOfCards();
             }
             //compare scores to see who won
             if (firstPlayerScore == secondPlayerScore)
