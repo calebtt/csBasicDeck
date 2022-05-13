@@ -11,7 +11,7 @@ namespace csBasicDeck
     /// </summary>
     public class PokerFiveCard
     {
-        private const int HAND_SIZE = 5;
+        private readonly int HAND_SIZE;
         private const string ERR_HAND_SIZE = "Exception in PokerFiveCard: List<Card> hand param arg has wrong number of elements!";
 
         private void CheckArgSize(List<Card> hand)
@@ -20,6 +20,15 @@ namespace csBasicDeck
                 throw new ArgumentNullException(nameof(hand));
             if (hand.Count != HAND_SIZE)
                 throw new ArgumentException(ERR_HAND_SIZE);
+        }
+
+        /// <summary>
+        /// Constructor, needs to know the number of cards in a hand.
+        /// </summary>
+        /// <param name="handSize">Num cards in a hand</param>
+        public PokerFiveCard(int handSize)
+        {
+            HAND_SIZE = handSize;
         }
 
         /// <summary>

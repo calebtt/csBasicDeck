@@ -9,8 +9,9 @@ namespace BasicDeckTest
     [TestClass]
     public class BasicDeckUnitTest
     {
+        private const int NumCardsInHand = 5;
         //shared instance between tests
-        readonly PokerFiveCard pk = new();
+        readonly PokerFiveCard pk = new(NumCardsInHand);
         readonly BasicDeck bd = new();
 
         [TestMethod]
