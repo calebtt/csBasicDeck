@@ -150,7 +150,7 @@ namespace csBasicDeck
         /// <param name="handOne">Hand one cards</param>
         /// <param name="handTwo">Hand two cards</param>
         /// <param name="bd">Deck object for drawing from</param>
-        /// <returns></returns>
+        /// <returns>WinInfo struct with relevant info</returns>
         private static WinInfo RunRoundLoop()
         {
             BasicDeck bd = new(); // deck management object, creation, shuffling, drawing, etc.
@@ -175,8 +175,8 @@ namespace csBasicDeck
                 //count pairs
                 var handOnePairs = pk.GetCardPairs(handOne.Cards);
                 var handTwoPairs = pk.GetCardPairs(handTwo.Cards);
-                ComputeScoreAndPrint(ProgSettings.FirstPlayerName, handOnePairs, ref firstPlayerScore);
-                ComputeScoreAndPrint(ProgSettings.SecondPlayerName, handTwoPairs, ref secondPlayerScore);
+                ComputeScoreAndPrint(ProgSettings.FirstPlayerName, handOnePairs, ref firstPlayerScore, i+1);
+                ComputeScoreAndPrint(ProgSettings.SecondPlayerName, handTwoPairs, ref secondPlayerScore, i+1);
             }
 
             return new WinInfo(new() {WinInfo.FlushType.None, WinInfo.FlushType.None},
@@ -216,14 +216,15 @@ namespace csBasicDeck
         /// <param name="player">Name of player running the test for</param>
         /// <param name="dupes">List of List-Card showing the duplicates (pairs) in the hand</param>
         /// <param name="currentScore">ref param for running score total</param>
-        private static void ComputeScoreAndPrint(string player, List<List<Card>> dupes, ref int currentScore)
+        /// <param name="currentRound">current round hand number for the match</param>
+        private static void ComputeScoreAndPrint(string player, List<List<Card>> dupes, ref int currentScore, int currentRound)
         {
             foreach (var p in dupes)
             {
                 if (p.Count > 1)
                 {
                     currentScore += p.Count * p[0].IntegerValue; // adding score
-                    Console.WriteLine("Hand {2} has {0} {1}'s of a kind.", p.Count, p[0].StringValue, player);
+                    Console.WriteLine("Round {3} {2} has Hand {0} {1}'s of a kind.", p.Count, p[0].StringValue, player, currentRound);
                 }
             }
         }
