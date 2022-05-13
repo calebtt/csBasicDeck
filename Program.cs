@@ -46,6 +46,16 @@ namespace csBasicDeck
                     return (maxScoreCount.Count > 1);
                 }
             }
+            /// <summary> If two or more players have a flush, returns true. </summary>
+            public bool IsFlushTie
+            {
+                get
+                {
+                    //determine if two or more have flushes
+                    int flushCount = PlayerFlushes.FindAll(ff => ff != FlushType.None).Count;
+                    return (flushCount > 1);
+                }
+            }
             /// <summary> If one or more of the players achieved a flush, returns true. </summary>
             public bool IsFlush
             {
@@ -88,13 +98,26 @@ namespace csBasicDeck
                 if (Char.ToUpper(exitKey.KeyChar) == 'Q')
                     return;
                 //now for some card game type logic, a loop of draws
-                WinInfo winnerInfo = RunRoundLoop();
+                WinInfo winnerInfo = RunRoundLoop(out BasicDeck handOne, out BasicDeck handTwo);
                 //scoring info
                 int firstPlayerScore = winnerInfo.PlayerScores[0];
                 int secondPlayerScore = winnerInfo.PlayerScores[1];
                 if (winnerInfo.IsFlush)
                 {
                     PrintFlushWinInfo(winnerInfo.PlayerFlushes[0], winnerInfo.PlayerFlushes[1]);
+                    //print suit(s) of winning flush hand(s)
+                    if (winnerInfo.IsFlushTie)
+                    {
+                        //handle flush tie case
+                        PrintFlushSuit(handOne.Cards, ProgSettings.FirstPlayerName);
+                        PrintFlushSuit(handTwo.Cards, ProgSettings.SecondPlayerName);
+                        continue;
+                    }
+                    //handle single flush winner case
+                    bool isFirstPlayerWinner = winnerInfo.PlayerFlushes[0] != WinInfo.FlushType.None;
+                    BasicDeck flushHand = isFirstPlayerWinner ? handOne : handTwo;
+                    string flushName = isFirstPlayerWinner ? ProgSettings.FirstPlayerName : ProgSettings.SecondPlayerName;
+                    PrintFlushSuit(flushHand.Cards,flushName);
                     continue;
                 }
 
@@ -151,19 +174,18 @@ namespace csBasicDeck
         /// <param name="handTwo">Hand two cards</param>
         /// <param name="bd">Deck object for drawing from</param>
         /// <returns>WinInfo struct with relevant info</returns>
-        private static WinInfo RunRoundLoop()
+        private static WinInfo RunRoundLoop(out BasicDeck handOne, out BasicDeck handTwo)
         {
-            BasicDeck bd = new(); // deck management object, creation, shuffling, drawing, etc.
             int firstPlayerScore = 0;
             int secondPlayerScore = 0;
             PokerFiveCard pk = new PokerFiveCard(ProgSettings.NumCardsInHand); // game logic obj
+            //create hands before starting loop
+            BasicDeck bd = new(); // deck management object, creation, shuffling, drawing, etc.
+            handOne = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
+            handTwo = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
             //ten round loop as of now
             for (int i = 0; i < ProgSettings.NumRoundsFiveCard; i++)
             {
-                //rebuild deck and shuffle before dealing
-                bd.BuildNewDeck();
-                BasicDeck handOne = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
-                BasicDeck handTwo = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
                 //if there is a flush type detected, notify user and return
                 WinInfo.FlushType flushWinOne = TestFlushes(pk, handOne.Cards);
                 WinInfo.FlushType flushWinTwo = TestFlushes(pk, handTwo.Cards);
@@ -177,8 +199,11 @@ namespace csBasicDeck
                 var handTwoPairs = pk.GetCardPairs(handTwo.Cards);
                 ComputeScoreAndPrint(ProgSettings.FirstPlayerName, handOnePairs, ref firstPlayerScore, i+1);
                 ComputeScoreAndPrint(ProgSettings.SecondPlayerName, handTwoPairs, ref secondPlayerScore, i+1);
+                //rebuild deck and shuffle before dealing new hands
+                bd.BuildNewDeck();
+                handOne = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
+                handTwo = new(bd.CreateHandFromTop(ProgSettings.NumCardsInHand));
             }
-
             return new WinInfo(new() {WinInfo.FlushType.None, WinInfo.FlushType.None},
                 new(){firstPlayerScore, secondPlayerScore});
         }
@@ -206,8 +231,8 @@ namespace csBasicDeck
         /// <param name="playerName">Name of player associated with hand</param>
         public static void PrintFlushSuit(List<Card> hand, string playerName)
         {
-            string msg = "\nFlush of " + hand[0].Suit + "  on hand " + playerName + " !";
-            PrintWithColor(msg);
+            string msg = "Flush of " + hand[0].Suit + " on hand " + playerName + " !";
+            PrintWithColor(msg, ConsoleColor.DarkBlue);
             Console.WriteLine("Cards in hand: ");
             hand.PrintToConsole();
         }
